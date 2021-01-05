@@ -654,13 +654,15 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw );
 gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)
 
-qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );
+qboolean	BG_CanItemBeGrabbed( int gametype, int dmFlags, const entityState_t *ent, const playerState_t *ps );
 
 
 // g_dmflags->integer flags
-#define	DF_NO_FALLING			8
-#define DF_FIXED_FOV			16
-#define	DF_NO_FOOTSTEPS			32
+#define DF_WEAPONS_STAY			0x00000004
+#define	DF_NO_FALLING			0x00000008
+#define DF_FIXED_FOV			0x00000010
+#define	DF_NO_FOOTSTEPS			0x00000020
+#define DF_ALL (DF_WEAPONS_STAY|DF_NO_FALLING|DF_FIXED_FOV|DF_NO_FOOTSTEPS)
 
 // content masks
 #define	MASK_ALL				(-1)

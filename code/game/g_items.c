@@ -284,7 +284,7 @@ static int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 		}
 
 		// dropped items and teamplay weapons always have full ammo
-		if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
+		if ( !(g_dmflags.integer & DF_WEAPONS_STAY) && ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
 			// respawning rules
 			// drop the quantity if the already have over the minimum
 			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity ) {
@@ -480,7 +480,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;		// dead people can't pickup
 
 	// the same pickup rules are used for client side and server side
-	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) {
+	if ( !BG_CanItemBeGrabbed( g_gametype.integer, g_dmflags.integer, &ent->s, &other->client->ps ) ) {
 		return;
 	}
 
@@ -492,6 +492,19 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	switch( ent->item->giType ) {
 	case IT_WEAPON:
 		respawn = Pickup_Weapon(ent, other);
+
+		// never 'pickup' weapons if weapons stay, only if weapon was dropped
+		if ( g_dmflags.integer & DF_WEAPONS_STAY ) {
+			if ( !(ent->flags & FL_DROPPED_ITEM) ) {
+				// play the normal pickup sound
+				if ( predict ) {
+					G_AddPredictableEvent( other, EV_ITEM_PICKUP, ent->s.modelindex );
+				} else {
+					G_AddEvent( other, EV_ITEM_PICKUP, ent->s.modelindex );
+				}
+				return;
+			}
+		}
 		break;
 	case IT_AMMO:
 		respawn = Pickup_Ammo(ent, other);

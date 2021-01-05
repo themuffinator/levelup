@@ -488,7 +488,7 @@ static void CG_TouchItem( centity_t *cent ) {
 		return;
 	}
 
-	if ( !BG_CanItemBeGrabbed( cgs.gametype, &cent->currentState, &cg.predictedPlayerState ) ) {
+	if ( !BG_CanItemBeGrabbed( cgs.gametype, cgs.dmflags, &cent->currentState, &cg.predictedPlayerState ) ) {
 		return;	// can't hold it
 	}
 
@@ -526,15 +526,18 @@ static void CG_TouchItem( centity_t *cent ) {
 	// perform prediction
 	CG_PickupPrediction( cent, item );
 
-	// remove it from the frame so it won't be drawn
-	cent->currentState.eFlags |= EF_NODRAW;
+	// non-dropped weapons never removed during weapons stay mode
+	if ( !(item->giType == IT_WEAPON && cgs.dmflags & DF_WEAPONS_STAY && !(cent->currentState.modelindex2 == 1)) ) {
+		// remove it from the frame so it won't be drawn
+		cent->currentState.eFlags |= EF_NODRAW;
 
-	// don't touch it again this prediction
-	cent->miscTime = cg.time;
+		// don't touch it again this prediction
+		cent->miscTime = cg.time;
 
-	// delay next potential pickup for some time
-	cent->delaySpawn = cg.time + ( cg.meanPing > 0 ? cg.meanPing * 2 + 100 : 333 );
-	cent->delaySpawnPlayed = qfalse;
+		// delay next potential pickup for some time
+		cent->delaySpawn = cg.time + (cg.meanPing > 0 ? cg.meanPing * 2 + 100 : 333);
+		cent->delaySpawnPlayed = qfalse;
+	}
 
 	// if it's a weapon, give them some predicted ammo so the autoswitch will work
 	if ( item->giType == IT_WEAPON ) {
