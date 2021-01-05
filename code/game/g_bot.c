@@ -407,7 +407,7 @@ void G_CheckMinimumPlayers( void ) {
 	minplayers = bot_minplayers.integer;
 	if (minplayers <= 0) return;
 
-	if (g_gametype.integer >= GT_TEAM) {
+	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		if (minplayers >= level.maxclients / 2) {
 			minplayers = (level.maxclients / 2) -1;
 		}

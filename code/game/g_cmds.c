@@ -543,7 +543,7 @@ qboolean SetTeam( gentity_t *ent, const char *s ) {
 	client = level.clients + clientNum;
 
 	// early team override
-	if ( client->pers.connected == CON_CONNECTING && g_gametype.integer >= GT_TEAM ) {
+	if ( client->pers.connected == CON_CONNECTING && g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
 			team = TEAM_RED;
 		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
@@ -577,7 +577,7 @@ qboolean SetTeam( gentity_t *ent, const char *s ) {
 	} else if ( !Q_stricmp( s, "spectator" ) || !Q_stricmp( s, "s" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
-	} else if ( g_gametype.integer >= GT_TEAM ) {
+	} else if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
@@ -923,7 +923,7 @@ static void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chat
 	char		text[MAX_SAY_TEXT];
 	char		location[64];
 
-	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
+	if ( (g_gametype.integer < GT_TEAM || g_gametype.integer == GT_NTCTF) && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
 
@@ -945,7 +945,7 @@ static void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chat
 		color = COLOR_CYAN;
 		break;
 	case SAY_TELL:
-		if (target && target->inuse && target->client && g_gametype.integer >= GT_TEAM &&
+		if (target && target->inuse && target->client && (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF) &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
 			Team_GetLocationMsg(ent, location, sizeof(location)))
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"] (%s)"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
@@ -1080,7 +1080,7 @@ void G_Voice( gentity_t *ent, gentity_t *target, int mode, const char *id, qbool
 	int			j;
 	gentity_t	*other;
 
-	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
+	if ( (g_gametype.integer < GT_TEAM || g_gametype.integer == GT_NTCTF) && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
 
@@ -1213,7 +1213,7 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 		}
 	}
 
-	if (g_gametype.integer >= GT_TEAM) {
+	if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		// praise a team mate who just got a reward
 		for(i = 0; i < MAX_CLIENTS; i++) {
 			who = g_entities + i;
@@ -1346,6 +1346,7 @@ static qboolean ValidVoteCommand( int clientNum, char *command )
 		else if ( !Q_stricmp( command, "duel" ) ) i = GT_TOURNAMENT;
 		else if ( !Q_stricmp( command, "tdm" ) ) i = GT_TEAM;
 		else if ( !Q_stricmp( command, "ctf" ) ) i = GT_CTF;
+		else if ( !Q_stricmp( command, "ntc" ) ) i = GT_NTCTF;
 		else 
 		{
 			i = atoi( command );
@@ -1808,7 +1809,7 @@ void ClientCommand( int clientNum ) {
 	trap_Argv( 0, cmd, sizeof( cmd ) );
 
 	if ( ent->client->pers.connected != CON_CONNECTED ) {
-		if ( ent->client->pers.connected == CON_CONNECTING && g_gametype.integer >= GT_TEAM ) {
+		if ( ent->client->pers.connected == CON_CONNECTING && g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 			if ( Q_stricmp( cmd, "team" ) == 0 && !level.restarted ) {
 				Cmd_Team_f( ent ); // early team override
 			}

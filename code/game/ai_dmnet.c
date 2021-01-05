@@ -2017,7 +2017,7 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 #endif
 	}
 	//if no enemy
-	if (bs->enemy < 0 || ( g_gametype.integer >= GT_TEAM && bs->enemy < level.maxclients &&
+	if (bs->enemy < 0 || ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF && bs->enemy < level.maxclients &&
 							level.clients[bs->client].sess.sessionTeam == level.clients[bs->enemy].sess.sessionTeam ) ) {
 		bs->enemy = -1;
 		AIEnter_Seek_LTG(bs, "battle fight: no enemy");

@@ -512,6 +512,12 @@ static void CG_TouchItem( centity_t *cent ) {
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
 			item->giType == IT_TEAM && item->giTag == PW_BLUEFLAG)
 			return;
+	} else if ( cgs.gametype == GT_NTCTF ) {
+		// don't predict on flag captures
+		if ( (item->giTag == PW_BLUEFLAG && cg.predictedPlayerState.powerups[PW_REDFLAG]) ||
+				(item->giTag == PW_REDFLAG && cg.predictedPlayerState.powerups[PW_BLUEFLAG]) ) {
+			return;
+		}
 	}
 
 	// grab it

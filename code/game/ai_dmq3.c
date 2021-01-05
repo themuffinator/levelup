@@ -1629,7 +1629,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 #ifdef MISSIONPACK
 	int offence, leader;
 
-	if (gametype <= GT_TEAM)
+	if (gametype <= GT_TEAM || gametype == GT_NTCTF)
 		return;
 
 	offence = -1;
@@ -2200,7 +2200,7 @@ TeamPlayIsOn
 ==================
 */
 int TeamPlayIsOn(void) {
-	return ( gametype >= GT_TEAM );
+	return ( gametype >= GT_TEAM && gametype != GT_NTCTF );
 }
 
 /*
@@ -2789,7 +2789,7 @@ int BotSameTeam(bot_state_t *bs, int entnum) {
 		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
 		return qfalse;
 	}
-	if ( gametype >= GT_TEAM ) {
+	if ( gametype >= GT_TEAM && gametype != GT_NTCTF ) {
 		if ( g_clients[bs->client].sess.sessionTeam == g_clients[entnum].sess.sessionTeam )
 			return qtrue;
 	}

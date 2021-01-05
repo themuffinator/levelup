@@ -160,7 +160,7 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		return qfalse;
 	}
 
-	if ( g_gametype.integer < GT_TEAM ) {
+	if ( g_gametype.integer < GT_TEAM || g_gametype.integer == GT_NTCTF ) {
 		return qfalse;
 	}
 
@@ -516,7 +516,7 @@ void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
 }
 
 
-static gentity_t *Team_ResetFlag( team_t team ) {
+gentity_t *Team_ResetFlag( team_t team ) {
 	char *c;
 	gentity_t *ent, *rent = NULL;
 
@@ -551,7 +551,7 @@ static gentity_t *Team_ResetFlag( team_t team ) {
 
 
 void Team_ResetFlags( void ) {
-	if( g_gametype.integer == GT_CTF ) {
+	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_NTCTF ) {
 		Team_ResetFlag( TEAM_RED );
 		Team_ResetFlag( TEAM_BLUE );
 	}
@@ -696,7 +696,61 @@ void Team_DroppedFlagThink(gentity_t *ent) {
 
 /*
 ==============
-Team_DroppedFlagThink
+NTCTF_CaptureFlag
+==============
+*/
+static int NTCTF_CaptureFlag( gentity_t *ent, gentity_t *other, team_t team ) {
+	int			i;
+	gentity_t	*player;
+	gclient_t	*cl = other->client;
+	team_t		flag_pw = (team == TEAM_BLUE) ? PW_REDFLAG : PW_BLUEFLAG;
+
+	if ( !cl->ps.powerups[flag_pw] )
+		return 0; // We don't have the flag
+
+	cl->ps.powerups[flag_pw] = 0;
+
+	teamgame.last_flag_capture = level.time;
+
+	// add the sprite over the player's head
+	other->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
+	other->client->ps.eFlags |= EF_AWARD_CAP;
+	other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+	other->client->ps.persistant[PERS_CAPTURES]++;
+
+	AddScore( other, ent->r.currentOrigin, 1 );
+
+	Team_ResetFlags();
+
+	CalculateRanks();
+
+	return 0; // Do not respawn this automatically
+}
+
+
+/*
+==============
+NTCTF_PickupFlag
+==============
+*/
+static int NTCTF_PickupFlag( gentity_t *ent, gentity_t *other, team_t team ) {
+	gclient_t *cl = other->client;
+	team_t		flag_pw = (team == TEAM_BLUE) ? PW_BLUEFLAG : PW_REDFLAG;
+
+	cl->ps.powerups[flag_pw] = INT_MAX; // flags never expire
+
+	Team_SetFlagStatus( team, FLAG_TAKEN );
+
+	cl->pers.teamState.flagsince = level.time;
+	//Team_TakeFlagSound( ent, team );
+
+	return -1; // Do not respawn this automatically, but do delete it if it was FL_DROPPED
+}
+
+
+/*
+==============
+Team_TouchOurFlag
 ==============
 */
 static int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
@@ -900,6 +954,17 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 		return 0;
 	}
 #endif
+	if ( g_gametype.integer == GT_NTCTF ) {
+		if ( (team == TEAM_RED && other->client->ps.powerups[PW_BLUEFLAG]) ||
+				(team == TEAM_BLUE && other->client->ps.powerups[PW_REDFLAG]) ) {
+			// touch flag to capture
+			return NTCTF_CaptureFlag( ent, other, team );
+		} else {
+			return NTCTF_PickupFlag( ent, other, team );
+		}
+		return 0;
+	}
+
 	// GT_CTF
 	if( team == cl->sess.sessionTeam) {
 		return Team_TouchOurFlag( ent, other, team );
@@ -997,7 +1062,8 @@ gentity_t *SelectRandomTeamSpawnPoint( gentity_t *ent, int teamstate, team_t tea
 	qboolean	checkTelefrag;
 
 	if ( team != TEAM_RED && team != TEAM_BLUE )
-		return NULL;
+	//muff: randomize this for TEAM_FREE and GT_NTCTF
+		team = (rand() & 2) ? TEAM_RED : TEAM_BLUE;
 
 	checkMask = 3;
 

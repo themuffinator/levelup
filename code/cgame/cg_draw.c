@@ -1095,7 +1095,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 
 	y = cgs.screenYmin;
 
-	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 ) {
+	if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF && cg_drawTeamOverlay.integer == 1 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qtrue );
 	} 
 	if ( cg_drawSnapshot.integer ) {
@@ -1149,7 +1149,7 @@ static float CG_DrawScores( float y ) {
 	y1 = y;
 
 	// draw from the right side to left
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF ) {
 		x0 = cgs.screenXmax + 1;
 		color[0] = 0.0f;
 		color[1] = 0.1f;
@@ -1192,7 +1192,7 @@ static float CG_DrawScores( float y ) {
 
 		CG_DrawString( x0-4, y, s, colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT );
 
-		if ( cgs.gametype == GT_CTF ) {
+		if ( cgs.gametype == GT_CTF || cgs.gametype == GT_NTCTF ) {
 			// Display flag status
 			item = BG_FindItemForPowerup( PW_REDFLAG );
 
@@ -1229,6 +1229,9 @@ static float CG_DrawScores( float y ) {
 
 	} else {
 		qboolean	spectator;
+		int limit;
+
+		limit = cgs.gametype == GT_NTCTF ? cgs.capturelimit : cgs.fraglimit;
 
 		x = cgs.screenXmax + 1;
 
@@ -1284,8 +1287,8 @@ static float CG_DrawScores( float y ) {
 			CG_DrawString( x0-4, y, s, colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT );
 		}
 
-		if ( cgs.fraglimit ) {
-			s = va( "%2i", cgs.fraglimit );
+		if ( limit ) {
+			s = va( "%2i", limit );
 			CG_DrawString( x-4, y, s, colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_RIGHT );
 		}
 	}
@@ -1409,7 +1412,7 @@ static void CG_DrawLowerRight( void ) {
 
 	y = cgs.screenYmax + 1 - STATUSBAR_HEIGHT;
 
-	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2 ) {
+	if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF && cg_drawTeamOverlay.integer == 2 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
 
@@ -1474,7 +1477,7 @@ static void CG_DrawLowerLeft( void ) {
 
 	y = cgs.screenYmax + 1 - STATUSBAR_HEIGHT;
 
-	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 3 ) {
+	if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF && cg_drawTeamOverlay.integer == 3 ) {
 		y = CG_DrawTeamOverlay( y, qfalse, qfalse );
 	} 
 
@@ -2148,7 +2151,7 @@ static void CG_DrawSpectator( void ) {
 	CG_DrawString( 320, cgs.screenYmax - 40 + 1, "SPECTATOR", colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_CENTER | DS_PROPORTIONAL );
 	if ( cgs.gametype == GT_TOURNAMENT ) {
 		CG_DrawString( 320, cgs.screenYmax - 20 + 1, "waiting to play", colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_CENTER | DS_PROPORTIONAL );
-	} else if ( cgs.gametype >= GT_TEAM ) {
+	} else if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF ) {
 		CG_DrawString( 320, cgs.screenYmax - 20 + 1, "press ESC and use the JOIN menu to play", colorWhite, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, DS_SHADOW | DS_CENTER | DS_PROPORTIONAL );
 	}
 }
@@ -2269,7 +2272,7 @@ static qboolean CG_DrawScoreboard( void ) {
 
 
 	if (menuScoreboard == NULL) {
-		if ( cgs.gametype >= GT_TEAM ) {
+		if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF ) {
 			menuScoreboard = Menus_FindByName("teamscore_menu");
 		} else {
 			menuScoreboard = Menus_FindByName("score_menu");
@@ -2468,6 +2471,8 @@ static void CG_DrawWarmup( void ) {
 			s = "Team Deathmatch";
 		} else if ( cgs.gametype == GT_CTF ) {
 			s = "Capture the Flag";
+		} else if ( cgs.gametype == GT_NTCTF ) {
+			s = "No-Team CTF";
 #ifdef MISSIONPACK
 		} else if ( cgs.gametype == GT_1FCTF ) {
 			s = "One Flag CTF";
@@ -2619,7 +2624,7 @@ static void CG_Draw2D( stereoFrame_t stereoFrame )
 			CG_DrawReward();
 		}
     
-		if ( cgs.gametype >= GT_TEAM ) {
+		if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF ) {
 #ifndef MISSIONPACK
 			CG_DrawTeamInfo();
 #endif
@@ -2839,7 +2844,7 @@ void CG_TrackClientTeamChange( void )
 			return;
 		}
 
-		if ( cgs.gametype >= GT_TEAM ) 
+		if ( cgs.gametype >= GT_TEAM && cgs.gametype != GT_NTCTF )
 		{
 			spec_client = cg.snap->ps.clientNum;
 			return;

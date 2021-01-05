@@ -211,7 +211,7 @@ void InGame_MenuInit( void ) {
 	s_ingame.teamorders.color				= color_red;
 	s_ingame.teamorders.style				= UI_CENTER|UI_SMALLFONT;
 
-	if( trap_Cvar_VariableValue( "ui_gametype" ) < GT_TEAM )
+	if( trap_Cvar_VariableValue( "ui_gametype" ) < GT_TEAM || trap_Cvar_VariableValue( "ui_gametype" ) == GT_NTCTF )
 	{
 		s_ingame.teamorders.generic.flags |= QMF_GRAYED;
 	}

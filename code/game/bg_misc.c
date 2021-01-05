@@ -1122,7 +1122,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			}
 		}
 #endif
-		if( gametype == GT_CTF ) {
+		if ( gametype == GT_CTF ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
 			// but we can't pick up our flag at base
@@ -1138,7 +1138,9 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 					return qtrue;
 			}
 		}
-
+		if ( gametype == GT_NTCTF ) {
+			return qtrue;
+		}
 #ifdef MISSIONPACK
 		if( gametype == GT_HARVESTER ) {
 			return qtrue;

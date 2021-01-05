@@ -389,7 +389,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	int			i;
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "teamtournament"};
+	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "ntc", "oneflag", "obelisk", "harvester"};
 
 	// get the next free entity
 	ent = G_Spawn();
@@ -407,7 +407,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		}
 	}
 	// check for "notteam" flag (GT_FFA, GT_TOURNAMENT, GT_SINGLE_PLAYER)
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if ( g_gametype.integer >= GT_TEAM ) {	// && g_gametype.integer != GT_NTCTF ) {
+		//muff: GT_NTCTF considered as team game here
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
 			G_FreeEntity( ent );

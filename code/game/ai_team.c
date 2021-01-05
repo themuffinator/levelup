@@ -1999,7 +1999,7 @@ void BotTeamAI(bot_state_t *bs) {
 	char netname[MAX_NETNAME];
 
 	//
-	if ( gametype < GT_TEAM  )
+	if ( gametype < GT_TEAM || gametype == GT_NTCTF )
 		return;
 	// make sure we've got a valid team leader
 	if (!BotValidTeamLeader(bs)) {

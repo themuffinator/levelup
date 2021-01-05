@@ -350,12 +350,16 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 		if ( g_gametype.integer == GT_CTF ) {
 			if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
 				classname = "team_CTF_blueflag";
-			}
-			else {
+			} else {
 				classname = "team_CTF_redflag";
 			}
-		}
-		else {
+		} else if ( g_gametype.integer == GT_NTCTF ) {
+			if ( self->client->ps.powerups[PW_REDFLAG] ) {
+				classname = "team_CTF_blueflag";
+			} else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {
+				classname = "team_CTF_redflag";
+			}
+		}  else {
 			if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
 				classname = "team_CTF_redflag";
 			}
@@ -498,9 +502,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		attacker->client->lastkilled_client = self->s.number;
 
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
-			AddScore( attacker, self->r.currentOrigin, -1 );
+			if ( g_gametype.integer != GT_NTCTF )
+				AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
-			AddScore( attacker, self->r.currentOrigin, 1 );
+			if ( g_gametype.integer != GT_NTCTF )
+				AddScore( attacker, self->r.currentOrigin, 1 );
 
 			if( meansOfDeath == MOD_GAUNTLET ) {
 				
@@ -531,14 +537,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		}
 	} else {
-		AddScore( self, self->r.currentOrigin, -1 );
+		if ( g_gametype.integer != GT_NTCTF )
+			AddScore( self, self->r.currentOrigin, -1 );
 	}
 
 	// Add team bonuses
 	Team_FragBonuses(self, inflictor, attacker);
 
 	// if I committed suicide, the flag does not fall, it returns.
-	if (meansOfDeath == MOD_SUICIDE) {
+	if (meansOfDeath == MOD_SUICIDE || g_gametype.integer == GT_NTCTF) {
 #ifdef MISSIONPACK
 		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
 			Team_ReturnFlag( TEAM_FREE );

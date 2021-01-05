@@ -78,6 +78,7 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define GAMES_TOURNEY		2
 #define GAMES_TEAMPLAY		3
 #define GAMES_CTF			4
+#define GAMES_NTCTF			5
 
 static const char *master_items[] = {
 	"Local",
@@ -92,6 +93,7 @@ static const char *servertype_items[] = {
 	"Tournament",
 	"Team Deathmatch",
 	"Capture the Flag",
+	"No-Team CTF",
 	NULL
 };
 
@@ -476,6 +478,12 @@ static void ArenaServers_UpdateList( void )
 
 		case GAMES_CTF:
 			if ( servernodeptr->gametype != GT_CTF ) {
+				continue;
+			}
+			break;
+
+		case GAMES_NTCTF:
+			if ( servernodeptr->gametype != GT_NTCTF ) {
 				continue;
 			}
 			break;

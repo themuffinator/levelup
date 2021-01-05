@@ -53,6 +53,7 @@ const char *OtherTeamName( team_t team );
 const char *TeamColorString( team_t team );
 
 void Team_DroppedFlagThink(gentity_t *ent);
+gentity_t *Team_ResetFlag( team_t team );
 void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker);
 void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker);
 void Team_InitGame(void);

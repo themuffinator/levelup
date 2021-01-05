@@ -938,7 +938,7 @@ void CalculateRanks( void ) {
 		sizeof(level.sortedClients[0]), SortRanks );
 
 	// set the rank value for all clients that are connected and not spectators
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		// in team games, rank is just the order of the teams, 0=red, 1=blue, 2=tied
 		for ( i = 0;  i < level.numConnectedClients; i++ ) {
 			cl = &level.clients[ level.sortedClients[i] ];
@@ -973,7 +973,7 @@ void CalculateRanks( void ) {
 	}
 
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		trap_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
 		trap_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
 	} else {
@@ -1286,7 +1286,7 @@ void LogExit( const char *string ) {
 		numSorted = 32;
 	}
 
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		G_LogPrintf( "red:%i  blue:%i\n",
 			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
 	}
@@ -1318,7 +1318,7 @@ void LogExit( const char *string ) {
 
 #ifdef MISSIONPACK
 	if (g_singlePlayer.integer) {
-		if (g_gametype.integer >= GT_CTF) {
+		if (g_gametype.integer >= GT_CTF && g_gametype.integer != GT_NTCTF) {
 			won = level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE];
 		}
 		trap_SendConsoleCommand( EXEC_APPEND, (won) ? "spWin\n" : "spLose\n" );
@@ -1433,7 +1433,7 @@ static qboolean ScoreIsTied( void ) {
 		return qfalse;
 	}
 	
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
 	}
 
@@ -1530,17 +1530,35 @@ static void CheckExitRules( void ) {
 	}
 
 	if ( g_gametype.integer >= GT_CTF && g_capturelimit.integer ) {
+		if ( g_gametype.integer == GT_NTCTF ) {
+			for ( i = 0; i < level.maxclients; i++ ) {
+				cl = level.clients + i;
+				if ( cl->pers.connected != CON_CONNECTED ) {
+					continue;
+				}
+				if ( cl->sess.sessionTeam != TEAM_FREE ) {
+					continue;
+				}
 
-		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
-			G_BroadcastServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
-			LogExit( "Capturelimit hit." );
-			return;
-		}
+				if ( cl->ps.persistant[PERS_SCORE] >= g_capturelimit.integer ) {
+					LogExit( "Capturelimit hit." );
+					G_BroadcastServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " hit the capturelimit.\n\"",
+						cl->pers.netname ) );
+					return;
+				}
+			}
+		} else {
+			if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
+				G_BroadcastServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
+				LogExit( "Capturelimit hit." );
+				return;
+			}
 
-		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
-			G_BroadcastServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
-			LogExit( "Capturelimit hit." );
-			return;
+			if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
+				G_BroadcastServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
+				LogExit( "Capturelimit hit." );
+				return;
+			}
 		}
 	}
 }
@@ -1746,7 +1764,7 @@ static void CheckTournament( void ) {
 		int		counts[TEAM_NUM_TEAMS];
 		qboolean	notEnough = qfalse;
 
-		if ( g_gametype.integer >= GT_TEAM ) {
+		if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_NTCTF ) {
 			counts[TEAM_BLUE] = TeamConnectedCount( -1, TEAM_BLUE );
 			counts[TEAM_RED] = TeamConnectedCount( -1, TEAM_RED );
 
