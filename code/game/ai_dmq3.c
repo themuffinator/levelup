@@ -3673,7 +3673,7 @@ void BotCheckAttack(bot_state_t *bs) {
 	}
 
 	weapon = bs->cur_ps.weapon;
-	if ( weapon >= WP_MACHINEGUN && weapon <= WP_BFG && !bs->cur_ps.ammo[ weapon ] ) {
+	if ( weapon >= WP_MACHINEGUN && weapon < WP_GRAPPLING_HOOK && !bs->cur_ps.ammo[ weapon ] ) {
 		return;
 	}
 

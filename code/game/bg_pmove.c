@@ -1462,7 +1462,7 @@ PM_BeginWeaponChange
 ===============
 */
 static void PM_BeginWeaponChange( int weapon ) {
-	if ( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS ) {
+	if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
 		return;
 	}
 
@@ -1515,7 +1515,7 @@ PM_TorsoAnimation
 */
 static void PM_TorsoAnimation( void ) {
 	if ( pm->ps->weaponstate == WEAPON_READY ) {
-		if ( pm->ps->weapon == WP_GAUNTLET ) {
+		if ( pm->ps->weapon == WP_NONE || pm->ps->weapon == WP_GAUNTLET ) {
 			PM_ContinueTorsoAnim( TORSO_STAND2 );
 		} else {
 			PM_ContinueTorsoAnim( TORSO_STAND );
@@ -1595,7 +1595,7 @@ static void PM_Weapon( void ) {
 
 	if ( pm->ps->weaponstate == WEAPON_RAISING ) {
 		pm->ps->weaponstate = WEAPON_READY;
-		if ( pm->ps->weapon == WP_GAUNTLET ) {
+		if ( pm->ps->weapon == WP_NONE || pm->ps->weapon == WP_GAUNTLET ) {
 			PM_StartTorsoAnim( TORSO_STAND2 );
 		} else {
 			PM_StartTorsoAnim( TORSO_STAND );
@@ -1626,14 +1626,14 @@ static void PM_Weapon( void ) {
 	pm->ps->weaponstate = WEAPON_FIRING;
 
 	// check for out of ammo
-	if ( ! pm->ps->ammo[ pm->ps->weapon ] ) {
+	if ( pm->ps->weapon && ! pm->ps->ammo[ pm->ps->weapon ] ) {
 		PM_AddEvent( EV_NOAMMO );
 		pm->ps->weaponTime += 500;
 		return;
 	}
 
 	// take an ammo away if not infinite
-	if ( pm->ps->ammo[ pm->ps->weapon ] != -1 ) {
+	if ( pm->ps->weapon && pm->ps->ammo[ pm->ps->weapon ] != -1 ) {
 		pm->ps->ammo[ pm->ps->weapon ]--;
 	}
 

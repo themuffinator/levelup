@@ -969,6 +969,8 @@ void G_SpawnItem( gentity_t *ent, gitem_t *item ) {
 	if ( item->giType == IT_POWERUP ) {
 		G_SoundIndex( "sound/items/poweruprespawn.wav" );
 		G_SpawnFloat( "noglobalsound", "0", &ent->speed);
+	} else if ( item->giType == IT_WEAPON ) {
+		level.mapWeapons |= (1 << item->giTag);
 	}
 
 #ifdef MISSIONPACK

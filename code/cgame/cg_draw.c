@@ -637,9 +637,9 @@ static void CG_DrawStatusBar( void ) {
 	//
 	// ammo
 	//
-	if ( cent->currentState.weapon ) {
+	if ( cent->currentState.weapon > 0 ) {
 		value = ps->ammo[cent->currentState.weapon];
-		if ( value > -1 ) {
+		if ( value > -1 && cg.predictedPlayerState.weapon > 0 ) {
 			if ( cg.predictedPlayerState.weaponstate == WEAPON_FIRING
 				&& cg.predictedPlayerState.weaponTime > 100 ) {
 				// draw as dark grey when reloading

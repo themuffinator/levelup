@@ -1086,16 +1086,36 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 
-	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
-	if ( g_gametype.integer == GT_TEAM ) {
-		client->ps.ammo[WP_MACHINEGUN] = 50;
-	} else {
-		client->ps.ammo[WP_MACHINEGUN] = 100;
-	}
+	if ( g_startingWeapons.integer ) {
+		for ( i = WP_GAUNTLET; i < WP_NUM_WEAPONS; i++ ) {
+			if ( g_startingWeapons.integer > 0 && g_startingWeapons.integer & (1 << i-1) )
+				client->ps.stats[STAT_WEAPONS] |= (1 << i);
+			else if ( g_startingWeapons.integer < 0 ) {
+				if ( abs( g_startingWeapons.integer ) & (1 << i - 1) )
+					client->ps.stats[STAT_WEAPONS] |= (1 << i);
+				else if ( level.mapWeapons & (1 << i) )
+					client->ps.stats[STAT_WEAPONS] |= (1 << i);
+			}
+		}
 
-	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
-	client->ps.ammo[WP_GAUNTLET] = -1;
-	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+		// give ammo for starting weapons
+		for ( i = WP_GAUNTLET; i < WP_NUM_WEAPONS; i++ ) {
+			if ( !(client->ps.stats[STAT_WEAPONS] & (1 << i)) ) continue;
+
+			if ( i == WP_SHOTGUN || i == WP_GRENADE_LAUNCHER || i == WP_ROCKET_LAUNCHER || i == WP_RAILGUN || i == WP_BFG ) {
+				client->ps.ammo[i] = 10;
+			} else if ( i == WP_GAUNTLET || i == WP_GRAPPLING_HOOK ) {
+				client->ps.ammo[i] = -1;
+			} else {
+				client->ps.ammo[i] = 50;
+			}
+		}
+		if ( client->ps.stats[STAT_WEAPONS] & (1 << WP_MACHINEGUN) ) {
+			if ( g_gametype.integer == GT_TEAM ) {
+				client->ps.ammo[i] = 50;
+			}
+		}
+	}
 
 	// health will count down towards max_health
 	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
@@ -1114,7 +1134,13 @@ void ClientSpawn(gentity_t *ent) {
 		G_KillBox( ent );
 
 	// force the base weapon up
-	client->ps.weapon = WP_MACHINEGUN;
+	client->ps.weapon = 0;
+	for ( i = WP_NUM_WEAPONS - 1; i > 0; i-- ) {
+		if ( client->ps.stats[STAT_WEAPONS] & (1 << i) ) {
+			client->ps.weapon = i;
+			break;
+		}
+	}
 	client->ps.weaponstate = WEAPON_READY;
 
 	// don't allow full run speed for a bit

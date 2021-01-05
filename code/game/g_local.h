@@ -354,7 +354,9 @@ typedef struct {
 	int			num_entities;		// current number, <= MAX_GENTITIES
 
 	int			warmupTime;			// restart match at this time
-
+//levelup
+	int			mapWeapons;
+//-levelup
 	fileHandle_t	logFile;
 
 	// store latched cvars here that we want to get at often
@@ -521,7 +523,6 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm );
 void G_SetOrigin( gentity_t *ent, vec3_t origin );
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig( void );
-int CountNumWeaponsHeld( int weapBits, int ignoreNum );
 
 //
 // g_combat.c
@@ -810,6 +811,7 @@ extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
 //levelup
+extern	vmCvar_t	g_startingWeapons;
 extern	vmCvar_t	g_weaponCarryLimit;
 //-levelup
 void	trap_Print( const char *text );

@@ -1261,6 +1261,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 	weaponNum = cent->currentState.weapon;
 
+	if ( weaponNum == WP_NONE ) return;
+
 	CG_RegisterWeapon( weaponNum );
 	weapon = &cg_weapons[weaponNum];
 
@@ -1477,6 +1479,8 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		fovOffset[2] = 0;
 	}
 
+	if ( ps->weapon == WP_NONE ) return;
+
 	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
 	CG_RegisterWeapon( ps->weapon );
 	weapon = &cg_weapons[ ps->weapon ];
@@ -1566,6 +1570,8 @@ void CG_DrawWeaponSelect( void ) {
 			count++;
 		}
 	}
+
+	if ( !count ) return;
 
 	if ( weaponSelect < 3 ) {
 		x = 320 - count * 20;

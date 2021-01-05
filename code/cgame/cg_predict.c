@@ -326,7 +326,7 @@ static void CG_AddAmmo( int weapon, int count )
 		cg.predictedPlayerState.ammo[weapon] = -1;
 	} else {
 		cg.predictedPlayerState.ammo[weapon] += count;
-		if ( weapon >= WP_MACHINEGUN && weapon <= WP_BFG ) {
+		if ( weapon >= WP_MACHINEGUN && weapon < WP_GRAPPLING_HOOK ) {
 			if ( cg.predictedPlayerState.ammo[weapon] > AMMO_HARD_LIMIT ) {
 				cg.predictedPlayerState.ammo[weapon] = AMMO_HARD_LIMIT;
 			}
