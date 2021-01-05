@@ -420,6 +420,26 @@ void Weapon_RocketLauncher_Fire (gentity_t *ent) {
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
 
+/*
+======================================================================
+
+REDEEMER
+
+======================================================================
+*/
+
+void Weapon_Redeemer_Fire( gentity_t *ent ) {
+	gentity_t *m;
+
+	m = fire_redeemer( ent, muzzle, forward );
+	m->damage *= s_quadFactor;
+	m->splashDamage *= s_quadFactor;
+
+	ent->client->ps.pm_flags |= PMF_REDEEMER_STEER;
+
+//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
+}
+
 
 /*
 ======================================================================
@@ -865,6 +885,9 @@ void FireWeapon( gentity_t *ent ) {
 		break;
 	case WP_BFG:
 		BFG_Fire( ent );
+		break;
+	case WP_REDEEMER:
+		Weapon_Redeemer_Fire( ent );
 		break;
 	case WP_GRAPPLING_HOOK:
 		Weapon_GrapplingHook_Fire( ent );

@@ -742,6 +742,21 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
 		break;
 
+	case WP_REDEEMER:
+		weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
+		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
+		weaponInfo->missileTrailFunc = CG_RocketTrail;
+		weaponInfo->missileDlight = MISSILE_GLOW_RADIUS;
+		weaponInfo->wiTrailTime = 2000;
+		weaponInfo->trailRadius = 80;
+		
+		MAKERGB( weaponInfo->missileDlightColor, 1, 0.75f, 0 );
+		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
+
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
+		cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
+		break;
+
 #ifdef MISSIONPACK
 	case WP_PROX_LAUNCHER:
 		weaponInfo->missileModel = trap_R_RegisterModel( "models/weaphits/proxmine.md3" );
@@ -1960,6 +1975,24 @@ void CG_MissileHitWall( weapon_t weapon, int clientNum, vec3_t origin, vec3_t di
 			CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 20, 30 );
 		}
 		break;
+	case WP_REDEEMER:
+		mod = cgs.media.dishFlashModel;
+		shader = cgs.media.rocketExplosionShader;
+		sfx = cgs.media.sfx_rockexp;
+		mark = cgs.media.burnMarkShader;
+		radius = 128;
+		light = REDEEMER_EXPLOSION_RADIUS;
+		isSprite = qtrue;
+		duration = 1000;
+		lightColor[0] = 1.0;
+		lightColor[1] = 0.75;
+		lightColor[2] = 0.0;
+		// explosion sprite animation
+		VectorMA( origin, 24, dir, sprOrg );
+		VectorScale( dir, 128, sprVel );
+
+		CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 20, 30 );
+		break;
 	case WP_RAILGUN:
 		mod = cgs.media.ringFlashModel;
 		shader = cgs.media.railExplosionShader;
@@ -2090,6 +2123,7 @@ void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum )
 	case WP_ROCKET_LAUNCHER:
 	case WP_PLASMAGUN:
 	case WP_BFG:
+	case WP_REDEEMER:
 #ifdef MISSIONPACK
 	case WP_NAILGUN:
 	case WP_CHAINGUN:

@@ -73,6 +73,44 @@ void G_ExplodeMissile( gentity_t *ent ) {
 }
 
 
+/*
+================
+G_ExplodeRedeemerNuke
+
+Explode a missile without an impact
+================
+*/
+void G_ExplodeRedeemerNuke( gentity_t *ent ) {
+	vec3_t		dir;
+	vec3_t		origin;
+
+	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+	SnapVector( origin );
+	G_SetOrigin( ent, origin );
+
+	// we don't have a valid direction, so just point straight up
+	dir[0] = dir[1] = 0;
+	dir[2] = 1;
+
+	ent->s.eType = ET_GENERAL;
+	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
+
+	ent->freeAfterEvent = qtrue;
+
+	// splash damage
+	if ( ent->splashDamage ) {
+		if ( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent
+			, ent->splashMethodOfDeath ) ) {
+			g_entities[ent->r.ownerNum].client->accuracy_hits++;
+		}
+	}
+
+	ent->client->ps.pm_flags &= ~PMF_REDEEMER_STEER;
+
+	trap_LinkEntity( ent );
+}
+
+
 #ifdef MISSIONPACK
 /*
 ================
@@ -683,6 +721,55 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	VectorScale( dir, 900, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
 	VectorCopy (start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+
+//=============================================================================
+
+
+/*
+=================
+fire_redeemer
+=================
+*/
+gentity_t *fire_redeemer( gentity_t *self, vec3_t start, vec3_t dir ) {
+	gentity_t *bolt;
+
+	VectorNormalize( dir );
+
+	bolt = G_Spawn();
+	bolt->classname = "nuke";
+	bolt->nextthink = level.time + 30000;
+	bolt->think = G_ExplodeRedeemerNuke;
+	bolt->s.eType = ET_MISSILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_REDEEMER;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 1000;
+	bolt->splashDamage = 500;
+	bolt->splashRadius = 512;
+	bolt->methodOfDeath = MOD_REDEEMER;
+	bolt->splashMethodOfDeath = MOD_REDEEMER_SPLASH;
+	bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+
+	if ( self->s.powerups & (1 << PW_QUAD) )
+		bolt->s.powerups |= (1 << PW_QUAD);
+
+	// missile owner
+	bolt->s.clientNum = self->s.clientNum;
+	// unlagged
+	bolt->s.otherEntityNum = self->s.number;
+
+	bolt->s.pos.trType = TR_LINEAR;
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	VectorCopy( start, bolt->s.pos.trBase );
+	SnapVector( bolt->s.pos.trBase );			// save net bandwidth
+	VectorScale( dir, 400, bolt->s.pos.trDelta );
+	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
+	VectorCopy( start, bolt->r.currentOrigin );
 
 	return bolt;
 }

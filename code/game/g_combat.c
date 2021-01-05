@@ -282,6 +282,8 @@ char	*modNames[] = {
 	"MOD_LIGHTNING",
 	"MOD_BFG",
 	"MOD_BFG_SPLASH",
+	"MOD_REDEEMER",
+	"MOD_REDEEMER_SPLASH",
 	"MOD_WATER",
 	"MOD_SLIME",
 	"MOD_LAVA",

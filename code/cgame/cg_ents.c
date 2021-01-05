@@ -502,6 +502,13 @@ static void CG_Missile( centity_t *cent ) {
 		}
 	}
 
+	if ( cent->currentState.weapon == WP_REDEEMER ) {
+		VectorScale( ent.axis[0], 4, ent.axis[0] );
+		VectorScale( ent.axis[1], 4, ent.axis[1] );
+		VectorScale( ent.axis[2], 4, ent.axis[2] );
+		ent.nonNormalizedAxes = qtrue;
+	}
+
 	// add to refresh list, possibly with quad glow
 
 	s1->powerups &= ~( (1 << PW_INVIS) | (1 << PW_REGEN) );

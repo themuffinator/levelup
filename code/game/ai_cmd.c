@@ -1509,6 +1509,7 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 		"Railgun",
 		"Lightning Gun",
 		"BFG10K",
+		"REDEEMER",
 		"Quad Damage",
 		"Regeneration",
 		"Battle Suit",

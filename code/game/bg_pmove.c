@@ -1666,12 +1666,6 @@ static void PM_Weapon( void ) {
 	case WP_RAILGUN:
 		addTime = 1500;
 		break;
-	case WP_BFG:
-		addTime = 200;
-		break;
-	case WP_GRAPPLING_HOOK:
-		addTime = 400;
-		break;
 #ifdef MISSIONPACK
 	case WP_NAILGUN:
 		addTime = 1000;
@@ -1683,6 +1677,15 @@ static void PM_Weapon( void ) {
 		addTime = 30;
 		break;
 #endif
+	case WP_BFG:
+		addTime = 200;
+		break;
+	case WP_REDEEMER:
+		addTime = 2000;
+		break;
+	case WP_GRAPPLING_HOOK:
+		addTime = 400;
+		break;
 	}
 
 #ifdef MISSIONPACK

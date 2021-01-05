@@ -1317,6 +1317,8 @@ int BotSelectActivateWeapon(bot_state_t *bs) {
 		return WEAPONINDEX_ROCKET_LAUNCHER;
 	else if (bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
 		return WEAPONINDEX_BFG;
+	else if (bs->inventory[INVENTORY_REDEEMER] > 0 && bs->inventory[INVENTORY_NUKE] > 0)
+		return WEAPONINDEX_REDEEMER;
 	else {
 		return -1;
 	}
@@ -1406,6 +1408,8 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 				moveresult->weapon = WEAPONINDEX_ROCKET_LAUNCHER;
 			else if (bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
 				moveresult->weapon = WEAPONINDEX_BFG;
+			else if (bs->inventory[INVENTORY_REDEEMER] > 0 && bs->inventory[INVENTORY_NUKE] > 0)
+				moveresult->weapon = WEAPONINDEX_REDEEMER;
 			else {
 				moveresult->weapon = 0;
 			}

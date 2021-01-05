@@ -311,6 +311,22 @@ gitem_t	bg_itemlist[] =
 /* sounds */ ""
 	},
 
+/*QUAKED weapon_redeemer (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_redeemer",
+		"sound/misc/w_pkup.wav",
+		{ "models/weapons2/rocketl/rocketl.md3",
+		0, 0, 0},
+		/* icon */		"icons/iconw_rdmr",
+		/* pickup */	"REDEEMER",
+				1,
+				IT_WEAPON,
+				WP_REDEEMER,
+				/* precache */ "",
+				/* sounds */ ""
+	},
+
 /*QUAKED weapon_grapplinghook (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -451,10 +467,26 @@ gitem_t	bg_itemlist[] =
         { "models/powerups/ammo/bfgam.md3", 
 		0, 0, 0},
 /* icon */		"icons/icona_bfg",
-/* pickup */	"Bfg Ammo",
+/* pickup */	"BFG Ammo",
 		15,
 		IT_AMMO,
 		WP_BFG,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_nuke (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_nuke",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/rdmram.md3", 
+		0, 0, 0},
+/* icon */		"icons/icona_rdmr",
+/* pickup */	"Nuclear Warhead",
+		1,
+		IT_AMMO,
+		WP_REDEEMER,
 /* precache */ "",
 /* sounds */ ""
 	},

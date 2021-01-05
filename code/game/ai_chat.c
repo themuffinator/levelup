@@ -243,6 +243,8 @@ char *BotWeaponNameForMeansOfDeath(int mod) {
 		case MOD_LIGHTNING: return "Lightning Gun";
 		case MOD_BFG:
 		case MOD_BFG_SPLASH: return "BFG10K";
+		case MOD_REDEEMER:
+		case MOD_REDEEMER_SPLASH: return "REDEEMER";
 #ifdef MISSIONPACK
 		case MOD_NAIL: return "Nailgun";
 		case MOD_CHAINGUN: return "Chaingun";
@@ -282,6 +284,7 @@ char *BotRandomWeaponName(void) {
 		case 9: return "Chaingun";
 		case 10: return "Proximity Launcher";
 #endif
+		case 11: return "REDEEMER";
 		default: return "BFG10K";
 	}
 }

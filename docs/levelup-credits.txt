@@ -1,0 +1,11 @@
+Level Up! credits
+----------------------
+
+FEATURE REQUESTS
+Takkie: No Team CTF, weapon carry limit, weapons stay, weapon dropping
+
+DEVELOPMENT
+themuffinman - programming, project lead
+
+OTHER CREDITS
+baseq3e dev team for the fantastic work!

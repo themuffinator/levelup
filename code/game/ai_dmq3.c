@@ -1743,6 +1743,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_RAILGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_RAILGUN)) != 0;
 	bs->inventory[INVENTORY_PLASMAGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_PLASMAGUN)) != 0;
 	bs->inventory[INVENTORY_BFG10K] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_BFG)) != 0;
+	bs->inventory[INVENTORY_REDEEMER] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_REDEEMER)) != 0;
 	bs->inventory[INVENTORY_GRAPPLINGHOOK] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_GRAPPLING_HOOK)) != 0;
 #ifdef MISSIONPACK
 	bs->inventory[INVENTORY_NAILGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_NAILGUN)) != 0;;
@@ -1758,6 +1759,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_ROCKETS] = bs->cur_ps.ammo[WP_ROCKET_LAUNCHER];
 	bs->inventory[INVENTORY_SLUGS] = bs->cur_ps.ammo[WP_RAILGUN];
 	bs->inventory[INVENTORY_BFGAMMO] = bs->cur_ps.ammo[WP_BFG];
+	bs->inventory[INVENTORY_NUKE] = bs->cur_ps.ammo[WP_REDEEMER];
 #ifdef MISSIONPACK
 	bs->inventory[INVENTORY_NAILS] = bs->cur_ps.ammo[WP_NAILGUN];
 	bs->inventory[INVENTORY_MINES] = bs->cur_ps.ammo[WP_PROX_LAUNCHER];
@@ -2229,6 +2231,9 @@ float BotAggression(bot_state_t *bs) {
 	//if the bot can use the bfg
 	if (bs->inventory[INVENTORY_BFG10K] > 0 &&
 			bs->inventory[INVENTORY_BFGAMMO] > 7) return 100;
+	//if the bot can use the redeemer
+	if (bs->inventory[INVENTORY_REDEEMER] > 0 &&
+			bs->inventory[INVENTORY_NUKE] > 0) return 100;
 	//if the bot can use the railgun
 	if (bs->inventory[INVENTORY_RAILGUN] > 0 &&
 			bs->inventory[INVENTORY_SLUGS] > 5) return 95;
@@ -2438,6 +2443,9 @@ int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
 	//if the bot can use the bfg
 	if (bs->inventory[INVENTORY_BFG10K] > 0 &&
 			bs->inventory[INVENTORY_BFGAMMO] > 7) return qtrue;
+	//if the bot can use the redeemer
+	if (bs->inventory[INVENTORY_REDEEMER] > 0 &&
+			bs->inventory[INVENTORY_NUKE] > 0) return qtrue;
 	//if the bot can use the railgun
 	if (bs->inventory[INVENTORY_RAILGUN] > 0 &&
 			bs->inventory[INVENTORY_SLUGS] > 5) return qtrue;
@@ -2524,7 +2532,8 @@ int BotWantsToCamp(bot_state_t *bs) {
 	//the bot should have at least have the rocket launcher, the railgun or the bfg10k with some ammo
 	if ((bs->inventory[INVENTORY_ROCKETLAUNCHER] <= 0 || bs->inventory[INVENTORY_ROCKETS] < 10) &&
 		(bs->inventory[INVENTORY_RAILGUN] <= 0 || bs->inventory[INVENTORY_SLUGS] < 10) &&
-		(bs->inventory[INVENTORY_BFG10K] <= 0 || bs->inventory[INVENTORY_BFGAMMO] < 10)) {
+		(bs->inventory[INVENTORY_BFG10K] <= 0 || bs->inventory[INVENTORY_BFGAMMO] < 10) &&
+		(bs->inventory[INVENTORY_REDEEMER] <= 0 || bs->inventory[INVENTORY_NUKE] < 1)) {
 		return qfalse;
 	}
 	//find the closest camp spot
@@ -3273,11 +3282,11 @@ int BotEnemyCubeCarrierVisible(bot_state_t *bs) {
 BotAimAtEnemy
 ==================
 */
-void BotAimAtEnemy(bot_state_t *bs) {
+void BotAimAtEnemy( bot_state_t *bs ) {
 	int i, enemyvisible;
 	float dist, f, aim_skill, aim_accuracy, speed, reactiontime;
 	vec3_t dir, bestorigin, end, start, groundtarget, cmdmove, enemyvelocity;
-	vec3_t mins = {-4,-4,-4}, maxs = {4, 4, 4};
+	vec3_t mins = { -4,-4,-4 }, maxs = { 4, 4, 4 };
 	weaponinfo_t wi;
 	aas_entityinfo_t entinfo;
 	bot_goal_t goal;
@@ -3285,15 +3294,15 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	vec3_t target;
 
 	//if the bot has no enemy
-	if (bs->enemy < 0) {
+	if ( bs->enemy < 0 ) {
 		return;
 	}
 	//get the enemy entity information
-	BotEntityInfo(bs->enemy, &entinfo);
+	BotEntityInfo( bs->enemy, &entinfo );
 	//if this is not a player (should be an obelisk)
-	if (bs->enemy >= MAX_CLIENTS) {
+	if ( bs->enemy >= MAX_CLIENTS ) {
 		//if the obelisk is visible
-		VectorCopy(entinfo.origin, target);
+		VectorCopy( entinfo.origin, target );
 #ifdef MISSIONPACK
 		// if attacking an obelisk
 		if ( bs->enemy == redobelisk.entitynum ||
@@ -3302,55 +3311,48 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		}
 #endif
 		//aim at the obelisk
-		VectorSubtract(target, bs->eye, dir);
-		vectoangles(dir, bs->ideal_viewangles);
+		VectorSubtract( target, bs->eye, dir );
+		vectoangles( dir, bs->ideal_viewangles );
 		//set the aim target before trying to attack
-		VectorCopy(target, bs->aimtarget);
+		VectorCopy( target, bs->aimtarget );
 		return;
 	}
 	//
 	//BotAI_Print(PRT_MESSAGE, "client %d: aiming at client %d\n", bs->entitynum, bs->enemy);
 	//
-	aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL, 0, 1);
-	aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1);
+	aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL, 0, 1 );
+	aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1 );
 	//
-	if (aim_skill > 0.95) {
+	if ( aim_skill > 0.95 ) {
 		//don't aim too early
-		reactiontime = 0.5 * trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
-		if (bs->enemysight_time > FloatTime() - reactiontime) return;
-		if (bs->teleport_time > FloatTime() - reactiontime) return;
+		reactiontime = 0.5 * trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1 );
+		if ( bs->enemysight_time > FloatTime() - reactiontime ) return;
+		if ( bs->teleport_time > FloatTime() - reactiontime ) return;
 	}
 
 	//get the weapon information
-	trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	trap_BotGetWeaponInfo( bs->ws, bs->weaponnum, &wi );
 	//get the weapon specific aim accuracy and or aim skill
-	if (wi.number == WP_MACHINEGUN) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
-	}
-	else if (wi.number == WP_SHOTGUN) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_SHOTGUN, 0, 1);
-	}
-	else if (wi.number == WP_GRENADE_LAUNCHER) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER, 0, 1);
-		aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_GRENADELAUNCHER, 0, 1);
-	}
-	else if (wi.number == WP_ROCKET_LAUNCHER) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_ROCKETLAUNCHER, 0, 1);
-		aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_ROCKETLAUNCHER, 0, 1);
-	}
-	else if (wi.number == WP_LIGHTNING) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_LIGHTNING, 0, 1);
-	}
-	else if (wi.number == WP_RAILGUN) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_RAILGUN, 0, 1);
-	}
-	else if (wi.number == WP_PLASMAGUN) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_PLASMAGUN, 0, 1);
-		aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_PLASMAGUN, 0, 1);
-	}
-	else if (wi.number == WP_BFG) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_BFG10K, 0, 1);
-		aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_BFG10K, 0, 1);
+	if ( wi.number == WP_MACHINEGUN ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1 );
+	} else if ( wi.number == WP_SHOTGUN ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_SHOTGUN, 0, 1 );
+	} else if ( wi.number == WP_GRENADE_LAUNCHER ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER, 0, 1 );
+		aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_GRENADELAUNCHER, 0, 1 );
+	} else if ( wi.number == WP_ROCKET_LAUNCHER ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_ROCKETLAUNCHER, 0, 1 );
+		aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_ROCKETLAUNCHER, 0, 1 );
+	} else if ( wi.number == WP_LIGHTNING ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_LIGHTNING, 0, 1 );
+	} else if ( wi.number == WP_RAILGUN ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_RAILGUN, 0, 1 );
+	} else if ( wi.number == WP_PLASMAGUN ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_PLASMAGUN, 0, 1 );
+		aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_PLASMAGUN, 0, 1 );
+	} else if ( wi.number == WP_BFG ) {
+		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_BFG10K, 0, 1 );
+		aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_BFG10K, 0, 1 );
 	}
 	//
 	if (aim_accuracy <= 0) aim_accuracy = 0.0001f;

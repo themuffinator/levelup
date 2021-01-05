@@ -143,6 +143,7 @@ typedef enum {
 #define PMF_FOLLOW			4096	// spectate following another player
 #define PMF_SCOREBOARD		8192	// spectate as a scoreboard
 #define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
+#define PMF_REDEEMER_STEER	32768	// flying a redeemer missile
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
@@ -308,13 +309,14 @@ typedef enum {
 	WP_LIGHTNING,
 	WP_RAILGUN,
 	WP_PLASMAGUN,
-	WP_BFG,
-	WP_GRAPPLING_HOOK,
 #ifdef MISSIONPACK
 	WP_NAILGUN,
 	WP_PROX_LAUNCHER,
 	WP_CHAINGUN,
 #endif
+	WP_BFG,
+	WP_REDEEMER,
+	WP_GRAPPLING_HOOK,
 
 	WP_NUM_WEAPONS,
 	WP_PENDING = WP_NUM_WEAPONS, // used in ui_players.c
@@ -588,6 +590,8 @@ typedef enum {
 	MOD_LIGHTNING,
 	MOD_BFG,
 	MOD_BFG_SPLASH,
+	MOD_REDEEMER,
+	MOD_REDEEMER_SPLASH,
 	MOD_WATER,
 	MOD_SLIME,
 	MOD_LAVA,

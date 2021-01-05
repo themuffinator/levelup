@@ -79,9 +79,10 @@
 #define DEFAULT_BLUETEAM_NAME		"Pagans"
 
 // dynamic lights definitions
-#define GL_EXPLOSION_RADIUS		300
-#define RL_EXPLOSION_RADIUS		300
-#define BFG_EXPLOSION_RADIUS	300
+#define GL_EXPLOSION_RADIUS			300
+#define RL_EXPLOSION_RADIUS			300
+#define BFG_EXPLOSION_RADIUS		300
+#define REDEEMER_EXPLOSION_RADIUS	600
 
 // holdable powerups
 #define POWERUP_GLOW_RADIUS		200

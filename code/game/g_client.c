@@ -1106,6 +1106,8 @@ void ClientSpawn(gentity_t *ent) {
 				client->ps.ammo[i] = 10;
 			} else if ( i == WP_GAUNTLET || i == WP_GRAPPLING_HOOK ) {
 				client->ps.ammo[i] = -1;
+			} else if ( i == WP_REDEEMER ) {
+				client->ps.ammo[i] = 1;
 			} else {
 				client->ps.ammo[i] = 50;
 			}
