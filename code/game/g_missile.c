@@ -110,6 +110,20 @@ void G_ExplodeRedeemerNuke( gentity_t *ent ) {
 	trap_LinkEntity( ent );
 }
 
+/*
+================
+G_MissileDie
+Lancer - Destroy a missile
+================
+*/
+void G_MissileDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+	if ( inflictor == self )
+		return;
+	self->takedamage = qfalse;
+	self->think = G_ExplodeMissile;
+	self->nextthink = level.time + 10;
+}
+
 
 #ifdef MISSIONPACK
 /*
@@ -608,6 +622,13 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
 
+	if ( g_destructibleMissiles.integer ) {
+		bolt->health = 5;
+		bolt->takedamage = qtrue;
+		bolt->die = G_MissileDie;
+		VectorSet( bolt->r.maxs, 8, 8, 8 );
+	}
+
 	if ( self->s.powerups & (1 << PW_QUAD) )
 		bolt->s.powerups |= (1 << PW_QUAD);
 
@@ -706,6 +727,12 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
 
+	if ( g_destructibleMissiles.integer ) {
+		bolt->health = 5;
+		bolt->takedamage = qtrue;
+		bolt->die = G_MissileDie;
+	}
+
 	if ( self->s.powerups & (1 << PW_QUAD) )
 		bolt->s.powerups |= (1 << PW_QUAD);
 
@@ -762,6 +789,11 @@ gentity_t *fire_redeemer( gentity_t *self, vec3_t start, vec3_t dir ) {
 	bolt->s.clientNum = self->s.clientNum;
 	// unlagged
 	bolt->s.otherEntityNum = self->s.number;
+	if ( g_destructibleMissiles.integer ) {
+		bolt->health = 5;
+		bolt->takedamage = qtrue;
+		bolt->die = G_MissileDie;
+	}
 
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
@@ -853,6 +885,12 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
 
+	if ( g_destructibleMissiles.integer ) {
+		bolt->health = 5;
+		bolt->takedamage = qtrue;
+		bolt->die = G_MissileDie;
+	}
+
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
 	VectorCopy( start, bolt->s.pos.trBase );
@@ -906,6 +944,12 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	// count is used to check if the prox mine left the player bbox
 	// if count == 1 then the prox mine left the player bbox and can attack to it
 	bolt->count = 0;
+
+	if ( g_destructibleMissiles.integer ) {
+		bolt->health = 5;
+		bolt->takedamage = qtrue;
+		bolt->die = G_MissileDie;
+	}
 
 	//FIXME: we prolly wanna abuse another field
 	bolt->s.generic1 = self->client->sess.sessionTeam;

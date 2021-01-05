@@ -296,3 +296,6 @@ cd ..\..\assets
 
 :quit
 pause
+cd c:\
+copy "C:\levelup\build\win32-qvm\pak8a.pk3" "C:\Program Files (x86)\q3\levelup\pak8a.pk3"
+exec "C:\Program Files (x86)\q3\quake3e-vulkan.exe" +set fs_game levelup +devmap pro-q3dm6

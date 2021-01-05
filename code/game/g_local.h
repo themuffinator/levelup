@@ -811,6 +811,7 @@ extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
 //levelup
+extern	vmCvar_t	g_destructibleMissiles;
 extern	vmCvar_t	g_startingWeapons;
 extern	vmCvar_t	g_weaponCarryLimit;
 //-levelup
