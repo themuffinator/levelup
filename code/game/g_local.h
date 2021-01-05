@@ -521,6 +521,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm );
 void G_SetOrigin( gentity_t *ent, vec3_t origin );
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig( void );
+int CountNumWeaponsHeld( int weapBits, int ignoreNum );
 
 //
 // g_combat.c
@@ -808,7 +809,9 @@ extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
-
+//levelup
+extern	vmCvar_t	g_weaponCarryLimit;
+//-levelup
 void	trap_Print( const char *text );
 void	trap_Error( const char *text );
 int		trap_Milliseconds( void );

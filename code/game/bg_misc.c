@@ -1007,6 +1007,20 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 }
 
 
+/*
+================
+CountNumWeaponsHeld
+================
+*/
+int CountNumWeaponsHeld( int weapBits, int ignoreNum ) {
+	int i, count = 0;
+
+	for ( i = 0; i < WP_NUM_WEAPONS; i++ ) {
+		if ( weapBits & (1 << i) && i != ignoreNum ) count++;
+	}
+	return count;
+}
+
 
 /*
 ================
@@ -1016,7 +1030,7 @@ Returns false if the item should not be picked up.
 This needs to be the same for client side prediction and server use.
 ================
 */
-qboolean BG_CanItemBeGrabbed( int gametype, int dmFlags, const entityState_t *ent, const playerState_t *ps ) {
+qboolean BG_CanItemBeGrabbed( int gametype, int dmFlags, int weaponCarryLimit, const entityState_t *ent, const playerState_t *ps ) {
 	gitem_t	*item;
 #ifdef MISSIONPACK
 	int		upperBound;
@@ -1030,8 +1044,14 @@ qboolean BG_CanItemBeGrabbed( int gametype, int dmFlags, const entityState_t *en
 
 	switch( item->giType ) {
 	case IT_WEAPON:
+		// can't pickup weapons already held in weapons stay mode
 		if ( dmFlags & DF_WEAPONS_STAY ) {
 			if ( (ps->stats[STAT_WEAPONS] & (1 << item->giTag)) ) return qfalse;
+		}
+		// can't hold more than carry limit (if set) unless you already carry the weapon
+		if ( weaponCarryLimit > -1 ) {
+			if ( ps->stats[STAT_WEAPONS] & (1 << item->giTag) ) return qtrue;
+			if ( (CountNumWeaponsHeld( ps->stats[STAT_WEAPONS], -1 ) >= weaponCarryLimit) ) return qfalse;
 		}
 		return qtrue;	// weapons are always picked up
 

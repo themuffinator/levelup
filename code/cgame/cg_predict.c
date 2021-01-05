@@ -488,7 +488,7 @@ static void CG_TouchItem( centity_t *cent ) {
 		return;
 	}
 
-	if ( !BG_CanItemBeGrabbed( cgs.gametype, cgs.dmflags, &cent->currentState, &cg.predictedPlayerState ) ) {
+	if ( !BG_CanItemBeGrabbed( cgs.gametype, cgs.dmflags, cgs.weaponCarryLimit, &cent->currentState, &cg.predictedPlayerState ) ) {
 		return;	// can't hold it
 	}
 

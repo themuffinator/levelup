@@ -1103,7 +1103,9 @@ typedef struct {
 	int				teamChatMsgTimes[TEAMCHAT_HEIGHT];
 	int				teamChatPos;
 	int				teamLastChatPos;
-
+//levelup
+	int				weaponCarryLimit;
+//-levelup
 #ifdef MISSIONPACK
 	int cursorX;
 	int cursorY;

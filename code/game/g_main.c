@@ -64,6 +64,9 @@ vmCvar_t	g_unlagged;
 vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
 vmCvar_t	g_listEntity;
+//levelup
+vmCvar_t	g_weaponCarryLimit;
+//-levelup
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -144,7 +147,9 @@ static cvarTable_t gameCvarTable[] = {
 
 	{ &g_unlagged, "g_unlagged", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_predictPVS, "g_predictPVS", "0", CVAR_ARCHIVE, 0, qfalse },
-
+//levelup
+	{ &g_weaponCarryLimit, "g_weaponCarryLimit", "-1", CVAR_SERVERINFO, 0, qtrue },
+//-levelup
 #ifdef MISSIONPACK
 	{ &g_obeliskHealth, "g_obeliskHealth", "2500", 0, 0, qfalse },
 	{ &g_obeliskRegenPeriod, "g_obeliskRegenPeriod", "1", 0, 0, qfalse },

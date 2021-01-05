@@ -142,6 +142,8 @@ void CG_ParseServerinfo( void ) {
 	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
 	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
+
+	cgs.weaponCarryLimit = atoi( Info_ValueForKey( info, "g_weaponCarryLimit" ) );
 }
 
 

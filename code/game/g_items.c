@@ -480,7 +480,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;		// dead people can't pickup
 
 	// the same pickup rules are used for client side and server side
-	if ( !BG_CanItemBeGrabbed( g_gametype.integer, g_dmflags.integer, &ent->s, &other->client->ps ) ) {
+	if ( !BG_CanItemBeGrabbed( g_gametype.integer, g_dmflags.integer, g_weaponCarryLimit.integer, &ent->s, &other->client->ps ) ) {
 		return;
 	}
 
