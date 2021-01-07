@@ -68,6 +68,7 @@ vmCvar_t	g_listEntity;
 vmCvar_t	g_destructibleMissiles;
 vmCvar_t	g_startingWeapons;
 vmCvar_t	g_weaponCarryLimit;
+vmCvar_t	pmove_wallJump;
 //-levelup
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
@@ -153,6 +154,7 @@ static cvarTable_t gameCvarTable[] = {
 	{ &g_destructibleMissiles, "g_destructibleMissiles", "0", 0, 0, qtrue },
 	{ &g_startingWeapons, "g_startingWeapons", "3", 0, 0, qtrue },
 	{ &g_weaponCarryLimit, "g_weaponCarryLimit", "-1", CVAR_SERVERINFO, 0, qtrue },
+	{ &pmove_wallJump, "pmove_wallJump", "0", CVAR_SYSTEMINFO, 0, qfalse },
 //-levelup
 #ifdef MISSIONPACK
 	{ &g_obeliskHealth, "g_obeliskHealth", "2500", 0, 0, qfalse },

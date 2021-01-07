@@ -132,6 +132,7 @@ typedef enum {
 // pmove->pm_flags
 #define	PMF_DUCKED			1
 #define	PMF_JUMP_HELD		2
+#define PMF_TIME_WALLJUMP	4		// for limiting wall jumping
 #define	PMF_BACKWARDS_JUMP	8		// go into backwards land
 #define	PMF_BACKWARDS_RUN	16		// coast down to backwards run
 #define	PMF_TIME_LAND		32		// pm_time is time before rejump
@@ -144,8 +145,7 @@ typedef enum {
 #define PMF_SCOREBOARD		8192	// spectate as a scoreboard
 #define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
 #define PMF_REDEEMER_STEER	32768	// flying a redeemer missile
-
-#define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
+#define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_WALLJUMP)
 
 #define	MAXTOUCH	32
 typedef struct {
@@ -174,6 +174,8 @@ typedef struct {
 	// for fixed msec Pmove
 	int			pmove_fixed;
 	int			pmove_msec;
+
+	qboolean	pmove_wallJump;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame

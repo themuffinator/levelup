@@ -814,6 +814,7 @@ extern	vmCvar_t	g_proxMineTimeout;
 extern	vmCvar_t	g_destructibleMissiles;
 extern	vmCvar_t	g_startingWeapons;
 extern	vmCvar_t	g_weaponCarryLimit;
+extern	vmCvar_t	pmove_wallJump;
 //-levelup
 void	trap_Print( const char *text );
 void	trap_Error( const char *text );

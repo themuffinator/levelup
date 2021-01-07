@@ -339,6 +339,112 @@ static void PM_SetMovementDir( void ) {
 
 /*
 =============
+PM_CheckWallJump
+
+credit: unvanquished
+=============
+*/
+static qboolean PM_CheckWallJump() {
+	vec3_t  dir, forward, right, movedir, point;
+	float   normalFraction = 1.5f;
+	float   cmdFraction = 1.0f;
+	float   upFraction = 1.5f;
+	trace_t trace;
+	static const vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
+
+	ProjectPointOnPlane( movedir, pml.forward, refNormal );
+	VectorNormalize( movedir );
+
+	if ( pm->cmd.forwardmove < 0 ) {
+		VectorNegate( movedir, movedir );
+	}
+
+	//allow strafe transitions
+	if ( pm->cmd.rightmove ) {
+		VectorCopy( pml.right, movedir );
+
+		if ( pm->cmd.rightmove < 0 ) {
+			VectorNegate( movedir, movedir );
+		}
+	}
+
+	//trace into direction we are moving
+	VectorMA( pm->ps->origin, 0.25f, movedir, point );
+	pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
+
+	if ( trace.fraction < 1.0f &&
+		!(trace.surfaceFlags & (SURF_SKY | SURF_SLICK)) &&
+		trace.plane.normal[2] < MIN_WALK_NORMAL ) {
+		VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
+	} else {
+		return qfalse;
+	}
+
+	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+		return qfalse; // don't allow jump until all buttons are up
+	}
+
+	if ( pm->cmd.upmove < 10 ) {
+		// not holding jump
+		return qfalse;
+	}
+
+	if ( pm->ps->pm_flags & PMF_TIME_WALLJUMP ) {
+		return qfalse;
+	}
+
+	// must wait for jump to be released
+	if ( pm->ps->pm_flags & PMF_JUMP_HELD &&
+		pm->ps->grapplePoint[2] == 1.0f ) {
+		return qfalse;
+	}
+
+	pm->ps->pm_flags |= PMF_TIME_WALLJUMP;
+	pm->ps->pm_time = 200;
+
+	pml.groundPlane = qfalse; // jumping away
+	pml.walking = qfalse;
+	pm->ps->pm_flags |= PMF_JUMP_HELD;
+
+	pm->ps->groundEntityNum = ENTITYNUM_NONE;
+
+	ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
+	ProjectPointOnPlane( right, pml.right, pm->ps->grapplePoint );
+
+	VectorScale( pm->ps->grapplePoint, normalFraction, dir );
+
+	if ( pm->cmd.forwardmove > 0 ) {
+		VectorMA( dir, cmdFraction, forward, dir );
+	} else if ( pm->cmd.forwardmove < 0 ) {
+		VectorMA( dir, -cmdFraction, forward, dir );
+	}
+
+	if ( pm->cmd.rightmove > 0 ) {
+		VectorMA( dir, cmdFraction, right, dir );
+	} else if ( pm->cmd.rightmove < 0 ) {
+		VectorMA( dir, -cmdFraction, right, dir );
+	}
+
+	VectorMA( dir, upFraction, refNormal, dir );
+	VectorNormalize( dir );
+
+	VectorMA( pm->ps->velocity, 270, dir, pm->ps->velocity );
+
+//for a long run of wall jumps the velocity can get pretty large, this caps it
+	if ( VectorLength( pm->ps->velocity ) > 600 ) {
+		VectorNormalize( pm->ps->velocity );
+		VectorScale( pm->ps->velocity, 600, pm->ps->velocity );
+	}
+
+	PM_AddEvent( EV_JUMP );
+	//PM_PlayJumpingAnimation();
+
+	return qtrue;
+}
+
+
+/*
+=============
 PM_CheckJump
 =============
 */
@@ -366,6 +472,12 @@ static qboolean PM_CheckJump( void ) {
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 	pm->ps->velocity[2] = JUMP_VELOCITY;
 	PM_AddEvent( EV_JUMP );
+
+//walljump
+	// don't allow walljump for a short while after jumping from the ground
+	pm->ps->pm_flags |= PMF_TIME_WALLJUMP;
+	pm->ps->pm_time = 200;
+//-walljump
 
 	if ( pm->cmd.forwardmove >= 0 ) {
 		PM_ForceLegsAnim( LEGS_JUMP );
@@ -592,6 +704,9 @@ static void PM_AirMove( void ) {
 	float		wishspeed;
 	float		scale;
 	usercmd_t	cmd;
+
+	if ( pm->pmove_wallJump )
+		PM_CheckWallJump();
 
 	PM_Friction();
 

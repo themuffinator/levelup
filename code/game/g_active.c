@@ -900,6 +900,8 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.pmove_fixed = pmove_fixed.integer;
 	pm.pmove_msec = pmove_msec.integer;
 
+	pm.pmove_wallJump = pmove_wallJump.integer;
+
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
 #ifdef MISSIONPACK

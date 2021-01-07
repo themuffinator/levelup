@@ -1136,6 +1136,8 @@ typedef struct {
 	qboolean		pmove_fixed;
 	int				pmove_msec;
 
+	qboolean		pmove_wallJump;
+
 	qboolean		synchronousClients;
 
 	int				ospEnc;
